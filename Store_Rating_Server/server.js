@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const storeOwnerRoutes = require('./routes/storeOwner');
 const app = express();
 // Middleware
 app.use(cors());
@@ -11,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/store-owner', storeOwnerRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
