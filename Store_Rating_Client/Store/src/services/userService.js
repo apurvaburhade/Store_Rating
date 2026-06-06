@@ -17,6 +17,8 @@ const userService = {
     return data
   },
 
+  
+
   submitRating: async ({ storeId, rating }) => {
     const { data } = await axios.post(
       `${API_BASE}/ratings`,
