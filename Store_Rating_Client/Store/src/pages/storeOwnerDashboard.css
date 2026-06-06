@@ -9,6 +9,8 @@
   margin: 0 auto;
 }
 
+
+
 .owner-dashboard-header {
   display: flex;
   align-items: center;
@@ -20,6 +22,8 @@
   border-radius: 18px;
   box-shadow: 0 14px 32px rgba(14, 37, 80, 0.08);
 }
+
+
 
 .owner-brand-block {
   display: flex;

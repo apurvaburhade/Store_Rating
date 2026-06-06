@@ -17,6 +17,8 @@ const storeOwnerService = {
     const params = { sortBy, order }
     if (storeId) params.storeId = storeId
 
+    
+
     const { data } = await axios.get(`${API_BASE}/ratings`, {
       headers: getAuthHeaders(),
       params

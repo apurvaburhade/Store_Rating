@@ -12,7 +12,11 @@ const formatDate = (value) => {
   } catch {
     return value
   }
+
+
 }
+
+
 
 const formatNumber = (value, digits = 2) => {
   const numberValue = Number(value)
