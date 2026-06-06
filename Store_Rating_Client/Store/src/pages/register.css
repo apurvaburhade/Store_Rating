@@ -12,6 +12,8 @@
   max-width: 420px;
 }
 
+
+
 .auth-card {
   width: 100%;
   background: #ffffff;
@@ -61,6 +63,9 @@
   padding: 12px 14px;
   font-size: 14px;
 }
+
+
+
 
 .alert {
   background: #fee2e2;

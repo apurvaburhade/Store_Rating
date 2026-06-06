@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import authService from '../services/authService'
 import './login.css'
 
+
+
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,7 +27,11 @@ export default function Login() {
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Login error')
     }
+
   }
+
+
+  
 
   return (
     <div className="auth-page">
