@@ -268,7 +268,7 @@ const getUsers = (req, res) => {
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'name';
     const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
-    let query = 'SELECT id, name, email, address, role FROM users WHERE role != "Admin"';
+    let query = 'SELECT id, name, email, address, role FROM users WHERE 1=1';
     const params = [];
 
     if (search) {
@@ -276,7 +276,7 @@ const getUsers = (req, res) => {
         params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    if (role && ['Normal', 'Store Owner'].includes(role)) {
+    if (role && ['Normal', 'Store Owner', 'Admin'].includes(role)) {
         query += ` AND role = ?`;
         params.push(role);
     }

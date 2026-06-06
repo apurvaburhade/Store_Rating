@@ -10,6 +10,8 @@ const getStores = (req, res) => {
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'name';
     const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
 
+    const orderBy = sortField === 'rating' ? 'overallRating' : `s.${sortField}`;
+
     let query = `
         SELECT 
             s.id, 
@@ -29,7 +31,7 @@ const getStores = (req, res) => {
         params.push(`%${search}%`, `%${search}%`);
     }
 
-    query += ` GROUP BY s.id ORDER BY s.${sortField} ${sortOrder}`;
+    query += ` GROUP BY s.id ORDER BY ${orderBy} ${sortOrder}`;
 
     pool.query(query, params, (error, results) => {
         if (error) {
@@ -61,6 +63,7 @@ const searchStores = (req, res) => {
     const validSortFields = ['name', 'address', 'rating'];
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'name';
     const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    const orderBy = sortField === 'rating' ? 'overallRating' : `s.${sortField}`;
 
     let query = `
         SELECT 
