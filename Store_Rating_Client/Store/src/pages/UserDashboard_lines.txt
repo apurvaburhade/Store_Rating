@@ -1,0 +1,259 @@
+1: import React, { useEffect, useState } from 'react'
+2: import userService from '../services/userService'
+3: import './userDashboard.css'
+4: 
+5: export default function UserDashboard() {
+6:   const [stores, setStores] = useState([])
+7:   const [loading, setLoading] = useState(true)
+8:   const [search, setSearch] = useState('')
+9:   const [sortBy, setSortBy] = useState('name')
+10:   const [ratingInputs, setRatingInputs] = useState({})
+11:   const [message, setMessage] = useState('')
+12:   const [error, setError] = useState('')
+13:   const [searchPopup, setSearchPopup] = useState({ visible: false, query: '', results: [] })
+14:   const [selectedStore, setSelectedStore] = useState(null)
+15: 
+16:   const loadStores = async () => {
+17:     try {
+18:       setLoading(true)
+19:       const { stores: fetchedStores } = await userService.getStores({ search, sortBy, order: 'ASC' })
+20:       setStores(fetchedStores)
+21:       setError('')
+22:       if (search.trim()) {
+23:         setSearchPopup({ visible: true, query: search.trim(), results: fetchedStores })
+24:       } else {
+25:         setSearchPopup(prev => ({ ...prev, visible: false }))
+26:       }
+27:     } catch (err) {
+28:       setError(err.response?.data?.message || 'Unable to load stores')
+29:       setSearchPopup(prev => ({ ...prev, visible: false }))
+30:     } finally {
+31:       setLoading(false)
+32:     }
+33:   }
+34: 
+35:   useEffect(() => {
+36:     loadStores()
+37:   }, [search, sortBy])
+38: 
+39:   const updateRatingInput = (storeId, value) => {
+40:     setRatingInputs(prev => ({ ...prev, [storeId]: Number(value) }))
+41:   }
+42: 
+43:   const openStoreDetails = (store) => {
+44:     setSearchPopup(prev => ({ ...prev, visible: false }))
+45:     setSelectedStore(store)
+46:   }
+47: 
+48:   const closeStoreDetails = () => setSelectedStore(null)
+49: 
+50:   const handleSubmitRating = async (storeId, existingRating) => {
+51:     setMessage('')
+52:     setError('')
+53:     const ratingValue = ratingInputs[storeId] || existingRating || 0
+54:     if (!ratingValue || ratingValue < 1 || ratingValue > 5) {
+55:       setError('Please choose a rating between 1 and 5')
+56:       return
+57:     }
+58: 
+59:     try {
+60:       setLoading(true)
+61:       if (existingRating > 0) {
+62:         await userService.updateRating({ storeId, rating: ratingValue })
+63:         setMessage('Rating updated successfully')
+64:       } else {
+65:         await userService.submitRating({ storeId, rating: ratingValue })
+66:         setMessage('Rating submitted successfully')
+67:       }
+68:       await loadStores()
+69:     } catch (err) {
+70:       setError(err.response?.data?.message || 'Unable to submit rating')
+71:     } finally {
+72:       setLoading(f      <div className="dashboard-shell">
+73:         <header className="topbar">
+74:           <div className="topbar-brand">
+75:             <div className="topbar-logo">S</n            </div>
+76:             <div>
+77:               <p className="topbar-title">Store Admin</p>
+78:               <p className="topbar-tagline">Modern store management</p>
+79:             </div>
+80:           </div>
+81:           <div className="topbar-actions">
+82:             <button className="topbar-btn">Dashboard</button>
+83:             <button className="topbar-btn topbar-btn--primary">Logout</button>
+84:           </div>
+85:         </header>
+86: 
+87:         <section className="page-header">
+88:           <div>
+89:             <h1>Store Dashboard</h1>
+90:             <p className="page-description">Manage and rate available stores</p>
+91:           </div>
+92:         </section>
+93: 
+94:         <section className="toolbar-card">
+95:           <div className="toolbar-grid">
+96:             <label className="field-group">
+97:               <span className="field-label">Search stores</span>
+98:               <input
+99:                 type="search"
+100:                 className="field-input"
+101:                 placeholder="Search by name or address"
+102:                 value={search}
+103:                 onChange={(e) => setSearch(e.target.value)}
+104:               />
+105:             </label>
+106: 
+107:             <label className="field-group field-group--compact">
+108:               <span className="field-label">Sort by</span>
+109:               <select
+110:                 className="field-input"
+111:                 value={sortBy}
+112:                 onChange={(e) => setSortBy(e.target.value)}
+113:               >
+114:                 <option value="name">Name</option>
+115:                 <option value="address">Address</option>
+116:                 <option value="rating">Rating</option>
+117:               </select>
+118:             </label>
+119:           </div>
+120:         </section>
+121: 
+122:         {searchPopup.visible && (
+123:           <div className="search-popup-backdrop" onClick={() => setSearchPopup(prev => ({ ...prev, visible: false }))}>
+124:             <div className="search-popup" onClick={(e) => e.stopPropagation()}>
+125:               <div className="popup-header">
+126:                 <div>
+127:                   <h3>Search result</h3>
+128:                   <p>Results for "{searchPopup.query}"</p>
+129:                 </div>
+130:                 <button className="popup-close" onClick={() => setSearchPopup(prev => ({ ...prev, visible: false }))}>
+131:                   ×
+132:                 </button>
+133:               </div>
+134:               {searchPopup.results.length > 0 ? (
+135:                 <ul className="search-popup-list">
+136:                   {searchPopup.results.map((store) => (
+137:                     <li key={store.id} className="search-popup-item" onClick={() => openStoreDetails(store)}>
+138:                       {store.name}
+139:                     </li>
+140:                   ))}
+141:                 </ul>
+142:               ) : (
+143:                 <div className="search-popup-empty">No stores found for this query.</div>
+144:               )}
+145:             </div>
+146:           </div>
+147:         )}
+148: 
+149:         {selectedStore && (
+150:           <div className="details-backdrop" onClick={closeStoreDetails}>
+151:             <div className="details-card" onClick={(e) => e.stopPropagation()}>
+152:               <div className="details-header">
+153:                 <div>
+154:                   <h3>{selectedStore.name}</h3>
+155:                 </div>
+156:                 <button className="popup-close" onClick={closeStoreDetails}>×</button>
+157:               </div>
+158:               <div className="details-grid">
+159:                 <div className="details-row">
+160:                   <span className="details-label">Address</span>
+161:                   <span className="details-value">{selectedStore.address || 'N/A'}</span>
+162:                 </div>
+163:                 <div className="details-row">
+164:                   <span className="details-label">Average rating</span>
+165:                   <span className="details-value">{selectedStore.overallRating ?? 'Not rated'}</span>
+166:                 </div>
+167:                 <div className="details-row">
+168:                   <span className="details-label">Your rating</span>
+169:                   <span className="details-value">{selectedStore.userRating > 0 ? `${selectedStore.userRating}/5` : 'No rating yet'}</span>
+170:                 </div>
+171:                 {selectedStore.description && (
+172:                   <div className="details-row details-full-width">
+173:                     <span className="details-label">Description</span>
+174:                     <span className="details-value">{selectedStore.description}</span>
+175:                   </div>
+176:                 )}
+177:                 {Object.entries(selectedStore)
+178:                   .filter(([key]) => !['id', 'name', 'address', 'overallRating', 'userRating', 'description'].includes(key))
+179:                   .map(([key, value]) => (
+180:                     <div key={key} className="details-row">
+181:                       <span className="details-label">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
+182:                       <span className="details-value">{value || 'N/A'}</span>
+183:                     </div>
+184:                   ))}
+185:               </div>
+186:             </div>
+187:           </div>
+188:         )}
+189: 
+190:         <section className="store-card">
+191:           <div className="store-card-header">
+192:             <div>
+193:               <h2>Available stores</h2>
+194:               <p className="store-card-copy">Quickly scan ratings, locations, and your reviews.</p>
+195:             </div>
+196:           </div>
+197: 
+198:           <div className="store-table-wrapper">
+199:             <div className="store-table">
+200:               <div className="table-head">
+201:                 <div className="table-cell table-cell--wide">Store</div>
+202:                 <div className="table-cell table-cell--wide">Address</div>
+203:                 <div className="table-cell">Avg. rating</div>
+204:                 <div className="table-cell">Your rating</div>
+205:                 <div className="table-cell table-cell--action">Action</div>
+206:               </div>
+207: 
+208:               {loading ? (
+209:                 <div className="table-empty">Loading stores...</div>
+210:               ) : stores.length === 0 ? (
+211:                 <div className="table-empty">No stores found. Try broadening your search.</div>
+212:               ) : (
+213:                 stores.map((store) => (
+214:                   <div key={store.id} className="table-row">
+215:                     <div className="table-cell table-cell--wide">
+216:                       <div className="store-name">{store.name}</div>
+217:                     </div>
+218:                     <div className="table-cell table-cell--wide">
+219:                       <div className="store-address">{store.address}</div>
+220:                     </div>
+221:                     <div className="table-cell">
+222:                       <span className="rating-badge">? {store.overallRating || 'N/A'}</span>
+223:                     </div>
+224:                     <div className="table-cell">
+225:                       <span className="user-rating-badge">
+226:                         <span>Your Rating</span>
+227:                         <strong>? {store.userRating > 0 ? `${store.userRating}/5` : '—'}</strong>
+228:                       </span>
+229:                     </div>
+230:                     <div className="table-cell table-cell--action">
+231:                       <button
+232:                         className="action-btn"
+233:                         type="button"
+234:                         onClick={() => handleSubmitRating(store.id, store.userRating)}
+235:                       >
+236:                         {store.userRating > 0 ? 'Update' : 'Submit'}
+237:                       </button>
+238:                     </div>
+239:                   </div>
+240:                 ))
+241:               )}
+242:             </div>
+243:           </div>
+244: 
+245:           {message && <div className="status-banner success">{message}</div>}
+246:           {error && <div className="status-banner error">{error}</div>}
+247:         </section>
+248:       </div>
+249:    </div>
+250:             ))}
+251:           </div>
+252:         )}
+253: 
+254:         {message && <div className="status-banner success">{message}</div>}
+255:         {error && <div className="status-banner error">{error}</div>}
+256:       </section>
+257:     </main>
+258:   )
+259: }
