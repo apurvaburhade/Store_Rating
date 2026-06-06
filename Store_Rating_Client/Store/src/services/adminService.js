@@ -7,6 +7,9 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+
+
+
 const getDashboard = async () => {
   const { data } = await axios.get(`${API_BASE}/dashboard`, { headers: getAuthHeaders() })
   return data

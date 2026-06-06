@@ -10,6 +10,8 @@ export default function ChangePasswordModal({ visible, onClose, onSubmit, loadin
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
 
+
+  
   useEffect(() => {
     if (!visible) return
     setCurrentPassword('')
